@@ -1,0 +1,131 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* Font Family */
+  --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-heading: "Outfit", "Plus Jakarta Sans", sans-serif;
+
+  /* Brand Colors */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Base font size responsive */
+    @apply text-[14px] sm:text-[15px] lg:text-[16px];
+  }
+
+  body {
+    @apply min-h-screen text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 overflow-x-hidden;
+    background-color: #fcfdfd;
+
+    /* Background Mesh yang adaptif (ukuran lingkaran berubah di mobile) */
+    background-image:
+      radial-gradient(
+        circle at 5% 5%,
+        rgba(16, 185, 129, 0.08),
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 95% 95%,
+        rgba(14, 165, 233, 0.08),
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(248, 250, 252, 1),
+        transparent 100%
+      );
+    background-attachment: fixed;
+  }
+
+  /* Typography Responsive */
+  h1 {
+    @apply text-4xl sm:text-5xl lg:text-7xl font-black;
+  }
+  h2 {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-black;
+  }
+  h3 {
+    @apply text-2xl sm:text-3xl font-bold;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight font-heading leading-[1.1];
+  }
+}
+
+@layer components {
+  /* Utility Kartu Premium yang Responsive */
+  .kartu-lembut {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 transition-all duration-300;
+    /* Lengkungan lebih kecil di mobile agar tidak aneh */
+    @apply rounded-[2rem] sm:rounded-[2.5rem];
+    /* Shadow lebih soft di mobile */
+    @apply shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] sm:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)];
+  }
+
+  /* Padding Container standar */
+  .section-padding {
+    @apply py-12 sm:py-20 lg:py-28 px-4 sm:px-8 lg:px-12;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-cyan-600;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-200 hover:bg-slate-300;
+  }
+}
+
+@layer utilities {
+  /* Menghilangkan scrollbar tapi tetap bisa scroll (cocok untuk mobile horizontal scroll) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes tight-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+}
+
+.animate-tight-pulse {
+  animation: tight-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
