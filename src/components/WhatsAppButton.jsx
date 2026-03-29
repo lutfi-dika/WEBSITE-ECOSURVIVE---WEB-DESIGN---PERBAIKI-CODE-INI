@@ -10,7 +10,7 @@ const WhatsAppButton = () => {
   const sendMessage = (event) => {
     event.preventDefault()
 
-    const phoneNumber = '6281295431853'
+    const phoneNumber = '+62 812-9543-1853'
     const link = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
 
     window.open(link, '_blank')

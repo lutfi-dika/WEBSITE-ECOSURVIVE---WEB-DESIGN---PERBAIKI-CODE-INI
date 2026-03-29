@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react' // Tambahkan useEffect
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 import SplashScreen from './components/SplashScreen'
 import Navbar from './components/Navbar'
@@ -12,6 +12,7 @@ import HomePage from './pages/HomePage'
 import FaqPage from './pages/FaqPage'
 import ImpactStatsPage from './pages/ImpactStatsPage'
 import AboutPage from './pages/AboutPage'
+import WhatsAppButton from './components/WhatsAppButton'
 import { getSession, clearSession, saveSession } from './utils/storage'
 import { pageTransition } from './utils/animations'
 
@@ -19,41 +20,37 @@ const PAGE_HOME = 'beranda'
 const PAGE_AUTH = 'auth'
 const PAGE_USER_DASHBOARD = 'user-dashboard'
 const PAGE_ADMIN_DASHBOARD = 'admin-dashboard'
-const dashboardPages = [PAGE_USER_DASHBOARD, PAGE_ADMIN_DASHBOARD]
-
-const getInitialPage = (user) => {
-  if (!user) return PAGE_HOME
-  return user.role === 'admin' ? PAGE_ADMIN_DASHBOARD : PAGE_USER_DASHBOARD
-}
 
 function App() {
   const [currentUser, setCurrentUser] = useState(() => getSession())
-  const [page, setPage] = useState(() => getInitialPage(getSession()))
-
+  const [page, setPage] = useState(() => {
+    const user = getSession()
+    if (!user) return PAGE_HOME
+    return user.role === 'admin' ? PAGE_ADMIN_DASHBOARD : PAGE_USER_DASHBOARD
+  })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 900)
+    const timer = setTimeout(() => setIsLoading(false), 900)
     return () => clearTimeout(timer)
   }, [])
 
   const navigateHomeSection = (sectionId) => {
     if (page !== PAGE_HOME) {
       setPage(PAGE_HOME)
+      // Delay sedikit agar DOM Home ter-render dulu sebelum scroll
       setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 100)
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
+      }, 150)
       return
     }
-    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const handleAuthSuccess = (user) => {
     saveSession(user)
     setCurrentUser(user)
-    setPage(getInitialPage(user))
+    setPage(user.role === 'admin' ? PAGE_ADMIN_DASHBOARD : PAGE_USER_DASHBOARD)
   }
 
   const handleLogout = () => {
@@ -62,14 +59,11 @@ function App() {
     setPage(PAGE_HOME)
   }
 
-  if (isLoading) {
-    return <SplashScreen />
-  }
+  if (isLoading) return <SplashScreen />
 
-  const isDashboardPage = dashboardPages.includes(page)
+  const isDashboardPage = [PAGE_USER_DASHBOARD, PAGE_ADMIN_DASHBOARD].includes(page)
 
   const renderActivePage = () => {
-    // Menggunakan Switch Case agar lebih bersih
     switch (page) {
       case PAGE_AUTH:
         return (
@@ -78,17 +72,17 @@ function App() {
           </Motion.div>
         )
       case PAGE_USER_DASHBOARD:
-        return currentUser && (
+        return currentUser ? (
           <Motion.div key={PAGE_USER_DASHBOARD} {...pageTransition}>
             <UserDashboard user={currentUser} onLogout={handleLogout} />
           </Motion.div>
-        )
+        ) : setPage(PAGE_AUTH)
       case PAGE_ADMIN_DASHBOARD:
-        return currentUser?.role === 'admin' && (
+        return currentUser?.role === 'admin' ? (
           <Motion.div key={PAGE_ADMIN_DASHBOARD} {...pageTransition}>
             <AdminControlCenter onLogout={handleLogout} />
           </Motion.div>
-        )
+        ) : setPage(PAGE_AUTH)
       default:
         return (
           <Motion.div key={PAGE_HOME} {...pageTransition}>
@@ -98,9 +92,9 @@ function App() {
               onStartNow={() => setPage(PAGE_AUTH)}
             />
             <AboutPage />
-            <FeaturesSection />
+            <FeaturesSection id="fitur" />
             <ImpactStatsPage />
-            <ChallengeShowcase onPrimaryAction={() => setPage(PAGE_AUTH)} />
+            <ChallengeShowcase id="tantangan" onPrimaryAction={() => setPage(PAGE_AUTH)} />
             <FaqPage />
             <Footer />
           </Motion.div>
@@ -110,6 +104,7 @@ function App() {
 
   return (
     <div className="relative min-h-screen bg-slate-50">
+      {/* Navbar diletakkan di luar AnimatePresence agar tidak ikut ter-unmount saat pindah halaman */}
       <Navbar
         page={page}
         user={currentUser}
@@ -126,6 +121,9 @@ function App() {
           {renderActivePage()}
         </AnimatePresence>
       </main>
+
+      {/* Floating Button diletakkan di level paling atas agar selalu ada */}
+      <WhatsAppButton />
     </div>
   )
 }
